@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YU'S WORKSPACE</title>
+    <style>
+        /* 세련된 수직형 타이틀 폰트(Oswald)와 시스템 데이터 폰트(Roboto Mono) */
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&family=Roboto+Mono:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0c; /* 아주 깊고 다크한 차콜 블랙 */
+            color: #e0e0e0;
+            font-family: 'Roboto Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* [1] 캔버스의 도면화: 은은한 모눈 그리드 */
+        .grid-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+            z-index: 1;
+        }
+
+        /* [2] 뷰파인더 십자선 (화면을 가로지르는 얇은 축) */
+        .crosshair-x {
+            position: absolute;
+            top: 50%; left: 0; width: 100%; height: 1px;
+            background: rgba(255, 255, 255, 0.12); /* 얇고 예리한 금속선 느낌 */
+            z-index: 2;
+        }
+        .crosshair-y {
+            position: absolute;
+            top: 0; left: 50%; width: 1px; height: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            z-index: 2;
+        }
+
+        /* 중앙 조준점 (빛나는 작은 점) */
+        .center-dot {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px; height: 4px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            z-index: 3;
+        }
+
+        /* [3] 압도적인 정중앙 타이틀 그룹 */
+        .center-target {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            width: 100%;
+            pointer-events: none; /* 텍스트 선택 방지 */
+        }
+
+        .main-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 9vw; /* 모니터 가로 크기에 맞춰 거대하게 팽창 */
+            font-weight: 700;
+            letter-spacing: 2vw; /* 자간을 아주 넓게 주어 웅장함 부여 */
+            margin-left: 2vw; /* 시각적 중앙 보정 */
+            line-height: 1;
+            text-transform: uppercase;
+            
+            /* 핵심: 투명한 속 + 차갑고 예리한 메탈릭 실버 테두리 */
+            color: transparent;
+            -webkit-text-stroke: 1.5px rgba(200, 210, 220, 0.85); 
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.05); /* 뒤로 은은히 퍼지는 빛 */
+        }
+
+        .sub-title {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            letter-spacing: 12px;
+            color: #aaa;
+            background-color: #0a0a0c; /* 십자선을 살짝 덮어 글씨가 잘 보이게 처리 */
+            padding: 0 20px;
+        }
+
+        /* [4] 완벽한 대칭을 이루는 네 모서리 UI (데이터 로그) */
+        .corner-ui {
+            position: absolute;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: #666;
+            line-height: 1.8;
+            z-index: 20;
+        }
+
+        /* 뷰파인더처럼 상하좌우 여백을 45px로 칼같이 통일 */
+        .top-left { top: 45px; left: 45px; text-align: left; }
+        .top-right { top: 45px; right: 45px; text-align: right; }
+        .bottom-left { bottom: 45px; left: 45px; text-align: left; }
+        .bottom-right { bottom: 45px; right: 45px; text-align: right; }
+
+        /* 좌측 상단 진입 버튼 */
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px; height: 45px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            margin-bottom: 10px;
+        }
+        .nav-btn:hover {
+            border-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .highlight { color: #ddd; font-weight: 500; }
+
+        /* 모바일 최적화 (화면이 작아질 때 오류 방지) */
+        @media (max-width: 768px) {
+            .main-title { 
+                font-size: 3rem; 
+                letter-spacing: 10px; 
+                margin-left: 10px; 
+                -webkit-text-stroke: 1px rgba(200, 210, 220, 0.85); 
+            }
+            .sub-title { font-size: 0.6rem; letter-spacing: 6px; }
+            .corner-ui { font-size: 0.55rem; letter-spacing: 2px; }
+            .top-left { top: 25px; left: 25px; }
+            .top-right { top: 25px; right: 25px; }
+            .bottom-left { bottom: 25px; left: 25px; }
+            .bottom-right { bottom: 25px; right: 25px; }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 배경 및 타겟팅 시스템 -->
+    <div class="grid-bg"></div>
+    <div class="crosshair-x"></div>
+    <div class="crosshair-y"></div>
+    <div class="center-dot"></div>
+
+    <!-- 닻 역할을 하는 거대한 메인 타이틀 -->
+    <div class="center-target">
+        <h1 class="main-title">YU'S WORKSPACE</h1>
+        <div class="sub-title">VISUAL WORKS & ARCHIVE</div>
+    </div>
+
+    <!-- 완벽하게 4방향 균형을 잡는 정보 텍스트 (모서리 UI) -->
+    <div class="corner-ui top-left">
+        <a href="archive.html" class="nav-btn" aria-label="메뉴 열기">&gt;&gt;</a>
+    </div>
+    
+    <div class="corner-ui top-right">
+        [ SYSTEM : ONLINE ]<br>
+        COORD: 37.5665° N / 126.9780° E
+    </div>
+    
+    <div class="corner-ui bottom-left">
+        SCANNING LOGS...<br>
+        LATEST RECORD: <span class="highlight">HELL TRAIN_V1</span>
+    </div>
+    
+    <div class="corner-ui bottom-right">
+        [ MULTIDISCIPLINARY LOGS ]<br>
+        VER_1.0.0 // 2026
+    </div>
+
+</body>
+</html>
