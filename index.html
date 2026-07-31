@@ -3,171 +3,208 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Archery UI - Techwear Vibe</title>
+  <title>Yu's Workspace - Archive</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   
   <style>
     /* 기본 세팅 */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background-color: #050505; 
+      color: #fff; 
+      font-family: 'Space Mono', monospace; 
+      overflow: hidden; height: 100vh; position: relative;
     }
 
-    body {
-      background: #0a0a0a;
-      color: #f5f5f5;
-      font-family: sans-serif;
-      height: 100vh;
-      overflow: hidden;
+    /* 1. 배경 그리드 & 뷰파인더 모서리 */
+    .grid-bg {
+      position: absolute; width: 100%; height: 100%; z-index: 1;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 45px 45px;
     }
-
-    /* 컨테이너 */
-    .container {
-      position: relative;
-      width: 100%;
-      height: 100%;
+    .vignette-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at 70% 50%, transparent 5%, #050505 85%);
+      z-index: 2; pointer-events: none;
     }
-
-    /* ===================== */
-    /* 그리드 */
-    /* ===================== */
-    .grid-line {
-      position: absolute;
-      background: rgba(255,255,255,0.05);
+    
+    .viewfinder {
+      position: absolute; width: 30px; height: 30px; border: 1px solid rgba(255,255,255,0.4); z-index: 15;
     }
+    .vf-tl { top: 30px; left: 30px; border-right: none; border-bottom: none; }
+    .vf-tr { top: 30px; right: 30px; border-left: none; border-bottom: none; }
+    .vf-bl { bottom: 30px; left: 30px; border-right: none; border-top: none; }
+    .vf-br { bottom: 30px; right: 30px; border-left: none; border-top: none; }
 
-    .grid-line.horizontal {
-      top: 50%;
-      width: 100%;
-      height: 1px;
+    /* 2. HUD 텍스트 */
+    .hud-text {
+      position: absolute; font-size: 9px; color: rgba(255, 255, 255, 0.35);
+      letter-spacing: 2px; z-index: 10; line-height: 2; pointer-events: none;
     }
+    .hud-top-center { top: 35px; left: 50%; transform: translateX(-50%); }
+    .hud-top-right { top: 35px; right: 50px; text-align: right; }
+    .hud-bottom-right { bottom: 35px; right: 50px; text-align: right; }
+    .hud-highlight { color: #fff; text-shadow: 0 0 5px rgba(255,255,255,0.4); font-weight: bold; }
 
-    .grid-line.vertical {
-      left: 50%;
-      height: 100%;
-      width: 1px;
+    /* 3. 좌상단 메뉴 버튼 */
+    .menu-btn {
+      position: absolute; top: 50px; left: 50px;
+      width: 45px; height: 45px;
+      border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      color: #fff; font-size: 14px; font-weight: 700; letter-spacing: -2px; 
+      cursor: pointer; z-index: 300; background: transparent; transition: all 0.3s ease;
     }
+    .menu-btn:hover { border-color: #fff; background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
 
-    /* ===================== */
-    /* 타겟 */
-    /* ===================== */
-    .target {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 320px;
-      height: 320px;
-      transform: translate(-50%, -50%);
-      border-radius: 50%;
-
-      border: 1px solid rgba(255,255,255,0.15);
-
-      box-shadow:
-        0 0 60px rgba(77,163,255,0.12),
-        inset 0 0 30px rgba(255,255,255,0.05);
+    /* 4. 타이틀 영역 */
+    .title-area { position: absolute; bottom: 15%; left: 50px; z-index: 20; }
+    
+    .main-title {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 65px; font-weight: 700; line-height: 1.15; letter-spacing: 4px;
+      background: linear-gradient(135deg, #ffffff 0%, #d4d4d4 25%, #7a7a7a 40%, #ffffff 55%, #999999 75%, #ffffff 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0px 2px 5px rgba(255,255,255,0.1));
     }
-
-    /* 중심점 */
-    .target::after {
-      content: "";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-
-      width: 6px;
-      height: 6px;
-
-      transform: translate(-50%, -50%);
-      background: #4da3ff;
-
-      border-radius: 50%;
-
-      box-shadow:
-        0 0 10px #4da3ff,
-        0 0 20px #4da3ff,
-        0 0 40px #4da3ff;
-    }
-
-    /* ===================== */
-    /* 빛 포인트 */
-    /* ===================== */
-    .light {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: #4da3ff;
-
-      box-shadow:
-        0 0 6px #4da3ff,
-        0 0 12px #4da3ff,
-        0 0 20px #4da3ff;
-    }
-
-    /* ===================== */
-    /* 텍스트 */
-    /* ===================== */
-    .content {
-      position: absolute;
-      top: 20%;
-      left: 10%;
-    }
-
-    /* 메탈 텍스트 핵심 */
-    .metal-text {
-      font-size: 72px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-
-      background: linear-gradient(
-        90deg,
-        #ffffff 0%,
-        #dcdcdc 20%,
-        #9a9a9a 40%,
-        #ffffff 60%,
-        #cfcfcf 80%,
-        #ffffff 100%
-      );
-
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-
-      text-shadow:
-        0 0 10px rgba(255,255,255,0.15),
-        0 0 2px rgba(255,255,255,0.3);
-    }
-
     .subtitle {
-      margin-top: 12px;
-      font-size: 14px;
-      letter-spacing: 0.2em;
-      color: #9a9a9a;
+      font-size: 11px; color: rgba(255, 255, 255, 0.4); letter-spacing: 5px; 
+      margin-top: 25px; display: flex; align-items: center;
     }
+    .subtitle::before {
+      content: ""; display: inline-block; width: 30px; height: 1px; 
+      background: rgba(255,255,255,0.6); margin-right: 15px;
+    }
+
+    /* 5. 역동적인 다중 HUD 링 */
+    .metal-ui-container {
+      position: absolute; top: 50%; right: 15%; transform: translateY(-50%);
+      width: 480px; height: 480px; z-index: 5;
+    }
+    
+    .metal-ring-outer {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .metal-ring-inner {
+      position: absolute; top: 5%; left: 5%; width: 90%; height: 90%;
+      border-radius: 50%; border: 1px dashed rgba(255, 255, 255, 0.2);
+      animation: spin 30s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .target-bracket {
+      position: absolute; font-size: 24px; color: rgba(255, 255, 255, 0.5); font-weight: 300;
+    }
+    .tb-top { top: -10px; left: 50%; transform: translateX(-50%); }
+    .tb-bottom { bottom: -15px; left: 50%; transform: translateX(-50%); }
+
+    .floating-data {
+      position: absolute; font-size: 8px; color: rgba(255, 255, 255, 0.4); letter-spacing: 1px;
+    }
+    .fd-1 { top: 15%; left: -5%; }
+    .fd-2 { bottom: 20%; left: -2%; }
+
+    /* 6. 강렬해진 오른쪽 빛(플레어) */
+    .flare-right {
+      position: absolute; top: 50%; right: 0; transform: translate(50%, -50%);
+      width: 8px; height: 8px; background: #ffffff; border-radius: 50%;
+      box-shadow: 
+        0 0 20px 8px rgba(255, 255, 255, 0.9),
+        0 0 60px 20px rgba(255, 255, 255, 0.3);
+    }
+    .flare-right::before {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 250px; height: 1px; 
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,1), transparent);
+    }
+
+    /* 서랍 메뉴 (머천다이즈 삭제됨) */
+    .drawer {
+      position: fixed; top: 0; left: -400px; width: 400px; height: 100vh;
+      background-color: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255,255,255,0.05); padding: 120px 50px 80px; 
+      transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 200;
+    }
+    .drawer.open { left: 0; }
+    .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 35px; }
+    .drawer-menu > li > a { color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 1.1rem; font-family: 'Syncopate', sans-serif; font-weight: 700; letter-spacing: 2px; }
+    .drawer-menu > li > a:hover { color: #fff; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 150; }
+    .overlay.active { opacity: 1; visibility: visible; }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- 배경 그리드 & 뷰파인더 모서리 -->
+  <div class="grid-bg"></div>
+  <div class="vignette-overlay"></div>
+  <div class="viewfinder vf-tl"></div>
+  <div class="viewfinder vf-tr"></div>
+  <div class="viewfinder vf-bl"></div>
+  <div class="viewfinder vf-br"></div>
 
-    <!-- 배경 그리드 -->
-    <div class="grid">
-      <div class="grid-line horizontal"></div>
-      <div class="grid-line vertical"></div>
-    </div>
-
-    <!-- 중앙 타겟 -->
-    <div class="target"></div>
-
-    <!-- 포인트 라이트 -->
-    <div class="light" style="top:30%; left:60%;"></div>
-    <div class="light" style="top:70%; left:40%;"></div>
-
-    <!-- 텍스트 -->
-    <div class="content">
-      <h1 class="title metal-text">ARCHERY</h1>
-      <p class="subtitle">PRECISION / FOCUS / CONTROL</p>
-    </div>
-
+  <!-- HUD 데이터 텍스트 -->
+  <div class="hud-text hud-top-center">[ SYSTEM : ONLINE ]</div>
+  <div class="hud-text hud-top-right">
+    COORD: 37.5665° N / 126.9780° E<br>
+    WIND: 4.20 m/s DIR 280.0°
+  </div>
+  
+  <!-- 오른쪽 아래 문구 수정됨 -->
+  <div class="hud-text hud-bottom-right">
+    [ MULTIDISCIPLINARY LOGS ]<br>
+    VER_1.0.4 // 2026<br>
+    <div class="hud-highlight">DATA LOADED: 100%</div>
   </div>
 
+  <button class="menu-btn" onclick="toggleDrawer()">>></button>
+
+  <!-- 서랍 메뉴 (머천다이즈 삭제) -->
+  <nav class="drawer" id="drawer">
+    <ul class="drawer-menu">
+      <li><a href="#">01_MOTION</a></li>
+      <li><a href="#">02_ARTWORK</a></li>
+    </ul>
+  </nav>
+  <div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+  <!-- 다중 링(Ring) & 강화된 플레어 -->
+  <div class="metal-ui-container">
+    <div class="metal-ring-outer"></div>
+    <div class="metal-ring-inner"></div>
+    
+    <div class="target-bracket tb-top">v</div>
+    <div class="target-bracket tb-bottom">^</div>
+    
+    <div class="floating-data fd-1">TRK_ID: 9942</div>
+    <div class="floating-data fd-2">RAD: 0.054</div>
+
+    <div class="flare-right"></div>
+  </div>
+
+  <!-- 타이틀 영역 -->
+  <div class="title-area">
+    <h1 class="main-title">
+      WELCOME,<br>
+      YU'S<br>
+      WORKSPACE
+    </h1>
+    <div class="subtitle">VISUAL WORKS & ARCHIVE</div>
+  </div>
+
+  <script>
+    function toggleDrawer() {
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('overlay');
+      drawer.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>
