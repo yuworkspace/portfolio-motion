@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yu's Workspace - Archive</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  
+  <style>
+    /* 1. 밝고 차가운 Lab(연구소) 테마의 베이스 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background-color: #eef0f2; /* 차가운 쿨그레이/오프화이트 바탕 */
+      color: #1a1a1a; 
+      font-family: 'Space Mono', monospace; 
+      overflow: hidden; height: 100vh; position: relative;
+    }
+
+    /* 2. 도면(Blueprint) 느낌의 다크 그리드 */
+    .grid-bg {
+      position: absolute; width: 100%; height: 100%; z-index: 1;
+      background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    
+    /* 3. 규격화된 HUD 텍스트 (여백, 자간, 두께 통일) */
+    .hud-text {
+      position: absolute; 
+      font-size: 10px; 
+      font-weight: 400;
+      color: #555; /* 너무 까맣지 않은 세련된 다크그레이 */
+      letter-spacing: 3px; /* 자간 통일 */
+      line-height: 2; 
+      z-index: 10; 
+      pointer-events: none;
+    }
+    /* 정확히 40px로 모든 모서리 여백 통일 */
+    .hud-top-center { top: 40px; left: 50%; transform: translateX(-50%); }
+    .hud-top-right { top: 40px; right: 40px; text-align: right; }
+    .hud-bottom-right { bottom: 40px; right: 40px; text-align: right; }
+    /* 강조 포인트는 붉은색이나 푸른색 대신 시크한 블랙으로 */
+    .hud-highlight { color: #000; font-weight: 700; }
+
+    /* 4. 좌상단 메뉴 버튼 (여백 동일하게 40px) */
+    .menu-btn {
+      position: absolute; top: 40px; left: 40px;
+      width: 45px; height: 45px;
+      border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      color: #000; font-size: 14px; font-weight: 700; letter-spacing: -2px; 
+      cursor: pointer; z-index: 300; background: transparent; transition: all 0.3s ease;
+    }
+    .menu-btn:hover { border-color: #000; background: rgba(0,0,0,0.05); }
+
+    /* 5. 타이틀 영역 - 다크 크롬(건메탈) 질감 */
+    .title-area { position: absolute; bottom: 15%; left: 40px; z-index: 20; }
+    
+    .main-title {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 5vw; /* 화면 크기에 맞게 꽉 차도록 */
+      font-weight: 700; line-height: 1.1; letter-spacing: 2px;
+      
+      /* 밝은 배경에 어울리는 '건메탈' 쇠 질감 그라데이션 */
+      background: linear-gradient(135deg, #111 0%, #666 30%, #222 50%, #777 75%, #000 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      font-size: 10px; color: #555; letter-spacing: 3px; /* 다른 문구들과 동일한 자간/크기 */
+      margin-top: 20px; display: flex; align-items: center;
+    }
+    .subtitle::before {
+      content: ""; display: inline-block; 
+      width: 120px; /* 작대기를 길게 늘려 밸런스를 맞춤 */
+      height: 1px; 
+      background: #888; margin-right: 15px;
+    }
+
+    /* =========================================
+       6. 미니멀 하이테크 링 & 스캐너 라이트
+       ========================================= */
+    .metal-ui-container {
+      position: absolute; top: 50%; right: 15%; transform: translateY(-50%);
+      width: 460px; height: 460px; z-index: 5;
+    }
+    
+    /* 얇고 정교한 다크 실버 링 */
+    .metal-ring {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      border-radius: 50%; 
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03); 
+    }
+
+    /* 우주 느낌을 없애고, 기계적인 '스캐너' 같은 날카로운 레드/블랙 포인트 */
+    .scanner-flare {
+      position: absolute; top: 50%; right: 0; transform: translate(50%, -50%);
+      width: 4px; height: 4px; background: #000; border-radius: 50%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .scanner-flare::before {
+      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 80px; height: 1px; 
+      background: linear-gradient(90deg, transparent, #000, transparent);
+    }
+
+    /* 서랍 메뉴 (어두운 반전 테마로 유지하여 대비감 부여) */
+    .drawer {
+      position: fixed; top: 0; left: -400px; width: 400px; height: 100vh;
+      background-color: rgba(10, 10, 10, 0.98); border-right: 1px solid rgba(255,255,255,0.1); 
+      padding: 120px 50px 80px; transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 200;
+    }
+    .drawer.open { left: 0; }
+    .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 35px; }
+    .drawer-menu > li > a { color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 1.1rem; font-family: 'Syncopate', sans-serif; font-weight: 700; letter-spacing: 2px; }
+    .drawer-menu > li > a:hover { color: #fff; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 150; }
+    .overlay.active { opacity: 1; visibility: visible; }
+  </style>
+</head>
+<body>
+
+  <!-- 밝은 도면 감성의 그리드 -->
+  <div class="grid-bg"></div>
+
+  <!-- HUD 데이터 텍스트 (칼각 정렬) -->
+  <div class="hud-text hud-top-center">[ SYSTEM : ONLINE ]</div>
+  <div class="hud-text hud-top-right">
+    COORD: 37.5665° N / 126.9780° E<br>
+    WIND: 4.20 m/s DIR 280.0°
+  </div>
+  <div class="hud-text hud-bottom-right">
+    [ MULTIDISCIPLINARY LOGS ]<br>
+    VER_1.0.4 // 2026<br>
+    <div class="hud-highlight">DATA LOADED: 100%</div>
+  </div>
+
+  <button class="menu-btn" onclick="toggleDrawer()">>></button>
+
+  <nav class="drawer" id="drawer">
+    <ul class="drawer-menu">
+      <li><a href="#">01_MOTION</a></li>
+      <li><a href="#">02_ARTWORK</a></li>
+    </ul>
+  </nav>
+  <div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
+
+  <!-- 미니멀 링 & 스캐너 포인트 -->
+  <div class="metal-ui-container">
+    <div class="metal-ring"></div>
+    <div class="scanner-flare"></div>
+  </div>
+
+  <!-- 두 줄로 깔끔하게 정리된 다크 메탈릭 타이틀 -->
+  <div class="title-area">
+    <h1 class="main-title">
+      WELCOME,<br>
+      YU'S WORKSPACE
+    </h1>
+    <div class="subtitle">VISUAL WORKS & ARCHIVE</div>
+  </div>
+
+  <script>
+    function toggleDrawer() {
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('overlay');
+      drawer.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
