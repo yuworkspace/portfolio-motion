@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 검색 엔진 노출을 위한 사이트 설명 (추후 연결성 대비) -->
+    <meta name="description" content="Visual Works & Archive by YU. 모션 그래픽, 일러스트 및 시각 디자인 작업물 기록.">
+    <title>YU'S WORKSPACE</title>
+    <style>
+        /* 구글 폰트 불러오기 */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Roboto+Mono:wght@300;400;500&display=swap');
+
+        /* 기본 설정 리셋 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Roboto Mono', monospace;
+            /* 높이를 고정하지 않고 최소 높이만 지정하여 화면 잘림 방지 */
+            min-height: 100vh;
+            overflow: hidden; /* 기본 PC 화면에서는 스크롤 숨김 */
+            
+            /* 은은한 모눈종이(Grid) 패턴 배경 */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center center;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding: 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- 상단 영역 (시맨틱 태그 변경) --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            color: #777;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover {
+            border-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .system-status { text-align: center; margin-top: 15px; }
+        .coordinates { text-align: right; line-height: 1.6; }
+
+        /* --- 하단 영역 (시맨틱 태그 변경) --- */
+        footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .main-text {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .main-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #fff;
+            text-transform: uppercase;
+            transition: text-shadow 0.3s ease;
+            cursor: default;
+        }
+
+        .main-title:hover {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .sub-title {
+            font-size: 0.95rem;
+            letter-spacing: 4px;
+            color: #aaa;
+        }
+
+        .sub-title::before {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 1px;
+            background-color: #aaa;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+
+        .footer-logs {
+            text-align: right;
+            font-size: 0.8rem;
+            color: #777;
+            line-height: 1.8;
+            letter-spacing: 1.5px;
+        }
+
+        /* 📱 모바일 반응형 디자인 (화면이 작아질 때 오류 방지) */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto; /* 모바일 기기에서는 잘림 방지를 위해 스크롤 허용 */
+            }
+            .container { padding: 25px; }
+            .system-status, .coordinates { display: none; }
+            header { justify-content: flex-start; }
+            footer {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 40px;
+            }
+            .main-title {
+                font-size: 1.8rem;
+                word-break: keep-all; /* 모바일에서 단어가 어색하게 끊기지 않도록 설정 */
+            }
+            .sub-title { font-size: 0.75rem; }
+            .footer-logs { text-align: left; font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <header>
+            <!-- 차후 이동할 서브 페이지 주소(archive.html) 지정 및 웹 접근성(aria-label) 향상 -->
+            <a href="archive.html" class="nav-btn" aria-label="프로젝트 아카이브로 이동" title="Enter Workspace">&gt;&gt;</a>
+            
+            <div class="system-status">
+                [ SYSTEM : ONLINE ]
+            </div>
+            
+            <div class="coordinates">
+                COORD: 37.5665° N / 126.9780° E<br>
+                WIND: 4.20 m/s DIR 280.0°
+            </div>
+        </header>
+
+        <footer>
+            <div class="main-text">
+                <h1 class="main-title">WELCOME, YU'S WORKSPACE</h1>
+                <p class="sub-title">VISUAL WORKS & ARCHIVE</p>
+            </div>
+            
+            <div class="footer-logs">
+                [ MULTIDISCIPLINARY LOGS ]<br>
+                VER_1.0.0 // 2026
+            </div>
+        </footer>
+
+    </div>
+</body>
+</html>
