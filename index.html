@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YU'S WORKSPACE</title>
+    <style>
+        /* 세로로 길쭉하고 날렵한 Oswald와 시스템 터미널용 Roboto Mono */
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto+Mono:wght@300;400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* 아주 깊은 다크 그레이 배경 */
+            background-color: #0a0a0c; 
+            color: #e0e0e0;
+            font-family: 'Roboto Mono', monospace;
+            min-height: 100vh;
+            overflow: hidden;
+            
+            /* 정교한 도면 느낌의 모눈종이 패턴 */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        /* 좌측 상단 메뉴 버튼 */
+        .nav-btn {
+            position: absolute;
+            top: 45px;
+            left: 45px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 500;
+            z-index: 100;
+        }
+
+        .nav-btn:hover {
+            border-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* 1. 좌측을 압도하는 거대한 메탈릭 텍스트 (The Anchor) */
+        .giant-text {
+            position: absolute;
+            top: 50%;
+            left: -2vw; /* 화면 왼쪽 밖으로 살짝 잘리게 배치 */
+            transform: translateY(-50%);
+            font-family: 'Oswald', sans-serif;
+            font-size: 38vh; /* 화면 높이에 비례하는 거대한 사이즈 */
+            font-weight: 700;
+            line-height: 0.85;
+            display: flex;
+            flex-direction: column;
+            
+            /* 핵심: 내부는 투명하게 비우고, 메탈릭 실버 테두리만 남김 */
+            color: transparent;
+            -webkit-text-stroke: 2px rgba(170, 180, 190, 0.6); 
+            text-transform: uppercase;
+            pointer-events: none; /* 마우스 간섭 방지 */
+            z-index: 10;
+        }
+
+        /* 2. 우측 하단의 정교한 데이터 클러스터 (The Balance) */
+        .data-cluster {
+            position: absolute;
+            bottom: 45px;
+            right: 45px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+            border-right: 2px solid #555; /* 우측에 축을 잡아주는 얇은 선 */
+            padding-right: 20px;
+            z-index: 20;
+        }
+
+        .data-item {
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: #777;
+            text-transform: uppercase;
+        }
+
+        .data-item.highlight {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            color: #fff;
+            margin: 10px 0; /* 위아래 여백을 주어 강조 */
+        }
+
+        .system-status {
+            position: absolute;
+            top: 45px;
+            right: 45px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #555;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            body { overflow: auto; }
+            .giant-text {
+                font-size: 25vh;
+                left: -5vw;
+                -webkit-text-stroke: 1px rgba(170, 180, 190, 0.6);
+            }
+            .data-cluster {
+                bottom: 30px;
+                right: 30px;
+                padding-right: 15px;
+            }
+            .data-item.highlight { font-size: 1.1rem; }
+            .system-status { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- 좌측 상단 네비게이션 -->
+        <a href="archive.html" class="nav-btn" aria-label="프로젝트 아카이브로 이동">&gt;&gt;</a>
+        
+        <!-- 우측 상단 상태 -->
+        <div class="system-status">[ SYSTEM : ONLINE ]</div>
+
+        <!-- 좌측 거대한 비대칭 텍스트 (투명+메탈릭 테두리) -->
+        <div class="giant-text">
+            <span>Y</span>
+            <span>U</span>
+            <span>'</span>
+            <span>S</span>
+        </div>
+
+        <!-- 우측 하단 정교한 텍스트 블록 -->
+        <div class="data-cluster">
+            <div class="data-item">COORD: 37.5665° N / 126.9780° E</div>
+            <div class="data-item">WIND: 4.20 m/s DIR 280.0°</div>
+            <div class="data-item highlight">VISUAL WORKS & ARCHIVE</div>
+            <div class="data-item">MULTIDISCIPLINARY LOGS</div>
+            <div class="data-item">VER_1.0.0 // 2026</div>
+        </div>
+
+    </div>
+</body>
+</html>
