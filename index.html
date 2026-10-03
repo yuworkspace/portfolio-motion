@@ -6,108 +6,160 @@
   <title>Yu's Workspace - Archive</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
   
   <style>
-    /* 1. 밝고 차가운 Lab(연구소) 테마의 베이스 */
+    /* 1. 밝고 차가운 Lab 테마 베이스 */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      background-color: #eef0f2; /* 차가운 쿨그레이/오프화이트 바탕 */
+      background-color: #eef0f2; 
       color: #1a1a1a; 
       font-family: 'Space Mono', monospace; 
-      overflow: hidden; height: 100vh; position: relative;
+      overflow: hidden; /* 모바일/PC 모두 화면 밖으로 넘어가지 않도록 고정 */
+      width: 100vw;
+      height: 100vh; 
+      position: relative;
     }
 
-    /* 2. 도면(Blueprint) 느낌의 다크 그리드 */
+    /* 2. 도면(Blueprint) 느낌의 다크 그리드 (fixed로 수정하여 짤림 방지) */
     .grid-bg {
-      position: absolute; width: 100%; height: 100%; z-index: 1;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
       background-image: 
         linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
       background-size: 50px 50px;
     }
     
-    /* 3. 규격화된 HUD 텍스트 (여백, 자간, 두께 통일) */
+    /* 3. 규격화된 HUD 텍스트 */
     .hud-text {
       position: absolute; 
       font-size: 10px; 
-      font-weight: 400;
-      color: #555; /* 너무 까맣지 않은 세련된 다크그레이 */
-      letter-spacing: 3px; /* 자간 통일 */
+      font-weight: 400; 
+      color: #555;      
+      letter-spacing: 3px; 
       line-height: 2; 
       z-index: 10; 
       pointer-events: none;
     }
-    /* 정확히 40px로 모든 모서리 여백 통일 */
-    .hud-top-center { top: 40px; left: 50%; transform: translateX(-50%); }
-    .hud-top-right { top: 40px; right: 40px; text-align: right; }
-    .hud-bottom-right { bottom: 40px; right: 40px; text-align: right; }
-    /* 강조 포인트는 붉은색이나 푸른색 대신 시크한 블랙으로 */
-    .hud-highlight { color: #000; font-weight: 700; }
+    .hud-top-center { top: 50px; left: 50%; transform: translateX(-50%); }
+    .hud-top-right { top: 50px; right: 50px; text-align: right; }
 
-    /* 4. 좌상단 메뉴 버튼 (여백 동일하게 40px) */
+    /* 4. 좌상단 메뉴 버튼 */
     .menu-btn {
-      position: absolute; top: 40px; left: 40px;
+      position: absolute; top: 50px; left: 50px;
       width: 45px; height: 45px;
       border: 1px solid rgba(0, 0, 0, 0.2); border-radius: 50%;
       display: flex; justify-content: center; align-items: center;
-      color: #000; font-size: 14px; font-weight: 700; letter-spacing: -2px; 
-      cursor: pointer; z-index: 300; background: transparent; transition: all 0.3s ease;
+      color: #555; 
+      font-size: 17px; 
+      font-weight: 700; letter-spacing: -2px; 
+      cursor: pointer; z-index: 300; background: transparent; transition: all 0.2s ease;
     }
-    .menu-btn:hover { border-color: #000; background: rgba(0,0,0,0.05); }
+    .menu-btn:hover { border-color: #555; color: #111; background: rgba(0,0,0,0.05); }
+    .menu-btn:active {
+      box-shadow: 0 0 15px 2px rgba(150, 150, 150, 0.6), inset 0 0 5px rgba(200, 200, 200, 0.5);
+      border-color: #555;
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(0.95);
+    }
 
-    /* 5. 타이틀 영역 - 다크 크롬(건메탈) 질감 */
-    .title-area { position: absolute; bottom: 15%; left: 40px; z-index: 20; }
+    /* 5. 하단 영역 (타이틀 세트 & 우측 정보 세트) */
+    .bottom-bar {
+      position: absolute; 
+      bottom: 50px; left: 50px; right: 50px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-end; 
+      z-index: 20; 
+      pointer-events: none;
+    }
+
+    .title-set { display: flex; flex-direction: column; }
     
     .main-title {
       font-family: 'Syncopate', sans-serif;
-      font-size: 5vw; /* 화면 크기에 맞게 꽉 차도록 */
+      font-size: 5.5vw; 
       font-weight: 700; line-height: 1.1; letter-spacing: 2px;
-      
-      /* 밝은 배경에 어울리는 '건메탈' 쇠 질감 그라데이션 */
-      background: linear-gradient(135deg, #111 0%, #666 30%, #222 50%, #777 75%, #000 100%);
+      background: linear-gradient(135deg, #111 20%, #999 40%, #111 60%, #666 80%, #111 100%);
+      background-size: 200% auto;
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: metal-shine 6s linear infinite;
     }
+    
+    @keyframes metal-shine {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
     .subtitle {
-      font-size: 10px; color: #555; letter-spacing: 3px; /* 다른 문구들과 동일한 자간/크기 */
-      margin-top: 20px; display: flex; align-items: center;
+      font-size: 10px; color: #555; letter-spacing: 3px; 
+      margin-top: 8px; 
+      display: flex; align-items: center;
     }
     .subtitle::before {
       content: ""; display: inline-block; 
-      width: 120px; /* 작대기를 길게 늘려 밸런스를 맞춤 */
-      height: 1px; 
-      background: #888; margin-right: 15px;
+      width: 140px; height: 1px; background: #888; margin-right: 15px;
+    }
+
+    .info-set {
+      font-size: 10px; font-weight: 400; color: #555;      
+      letter-spacing: 3px; line-height: 2; text-align: right;
     }
 
     /* =========================================
-       6. 미니멀 하이테크 링 & 스캐너 라이트
+       6. 미니멀 하이테크 링 & 스파클 별
        ========================================= */
     .metal-ui-container {
-      position: absolute; top: 50%; right: 15%; transform: translateY(-50%);
+      position: absolute; top: 45%; right: 15%; transform: translateY(-50%);
       width: 460px; height: 460px; z-index: 5;
     }
     
-    /* 얇고 정교한 다크 실버 링 */
     .metal-ring {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       border-radius: 50%; 
-      border: 1px solid rgba(0, 0, 0, 0.15);
+      border: 1px dashed rgba(0, 0, 0, 0.3);
       box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03); 
+      animation: spin-slow 40s linear infinite; 
     }
 
-    /* 우주 느낌을 없애고, 기계적인 '스캐너' 같은 날카로운 레드/블랙 포인트 */
-    .scanner-flare {
-      position: absolute; top: 50%; right: 0; transform: translate(50%, -50%);
-      width: 4px; height: 4px; background: #000; border-radius: 50%;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .scanner-flare::before {
-      content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      width: 80px; height: 1px; 
-      background: linear-gradient(90deg, transparent, #000, transparent);
+    @keyframes spin-slow {
+      100% { transform: rotate(360deg); }
     }
 
-    /* 서랍 메뉴 (어두운 반전 테마로 유지하여 대비감 부여) */
+    .sparkle-wrapper { position: absolute; z-index: 10; }
+    .pos-far-left { top: 25%; left: 8%; } 
+    .pos-bottom { bottom: 25%; left: 35%; } 
+    .pos-ring { top: 50%; right: 0; transform: translate(50%, -50%); } 
+
+    .sparkle-inner {
+      width: 24px; height: 46px; 
+      clip-path: polygon(50% 0%, 54% 46%, 100% 50%, 54% 54%, 50% 100%, 46% 54%, 0% 50%, 46% 46%);
+    }
+
+    .sparkle-black { background: #111; }
+
+    .sparkle-silver {
+      background: linear-gradient(135deg, #fff 0%, #eee 20%, #777 50%, #fff 80%, #333 100%);
+      background-size: 200% 200%;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+      animation: star-glint 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes star-glint {
+      0% {
+        transform: scale(0.85);
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+      }
+      100% {
+        transform: scale(1.1);
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1));
+      }
+    }
+
+    /* =========================================
+       7. 서랍 메뉴 & 하위 카테고리
+       ========================================= */
     .drawer {
       position: fixed; top: 0; left: -400px; width: 400px; height: 100vh;
       background-color: rgba(10, 10, 10, 0.98); border-right: 1px solid rgba(255,255,255,0.1); 
@@ -115,52 +167,140 @@
     }
     .drawer.open { left: 0; }
     .drawer-menu { list-style: none; display: flex; flex-direction: column; gap: 35px; }
-    .drawer-menu > li > a { color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 1.1rem; font-family: 'Syncopate', sans-serif; font-weight: 700; letter-spacing: 2px; }
+    
+    .drawer-menu > li > a { 
+      color: rgba(255, 255, 255, 0.5); text-decoration: none; font-size: 1.1rem; 
+      font-family: 'Syncopate', sans-serif; font-weight: 700; letter-spacing: 2px; 
+    }
     .drawer-menu > li > a:hover { color: #fff; }
+
+    details > summary {
+      color: rgba(255, 255, 255, 0.5); font-size: 1.1rem; 
+      font-family: 'Syncopate', sans-serif; font-weight: 700; letter-spacing: 2px; 
+      cursor: pointer; list-style: none; transition: color 0.3s;
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary:hover, details[open] > summary { color: #fff; }
+    
+    .sub-menu {
+      list-style: none; padding-left: 15px; margin-top: 15px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .sub-menu a {
+      color: rgba(255, 255, 255, 0.4); text-decoration: none; font-size: 0.85rem; 
+      font-family: 'Space Mono', monospace; transition: color 0.3s;
+    }
+    .sub-menu a:hover { color: #fff; }
+
     .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: all 0.4s ease; z-index: 150; }
     .overlay.active { opacity: 1; visibility: visible; }
+
+
+    /* =========================================
+       8. 반응형 미디어 쿼리 (태블릿 및 모바일 최적화)
+       ========================================= */
+
+    /* 태블릿 화면 (1024px 이하) */
+    @media screen and (max-width: 1024px) {
+      .metal-ui-container {
+        width: 350px; height: 350px;
+        right: 5%;
+        opacity: 0.6;
+      }
+      .main-title { font-size: 7vw; }
+    }
+
+    /* 모바일 휴대폰 화면 (768px 이하) */
+    @media screen and (max-width: 768px) {
+      /* 불필요한 HUD 숨기기 및 크기 조절 */
+      .hud-top-right { display: none; }
+      .hud-top-center { font-size: 9px; top: 30px; }
+
+      /* 메뉴 여백 축소 */
+      .menu-btn { top: 30px; left: 30px; width: 40px; height: 40px; }
+      
+      /* 하단 영역을 모바일 하단에 안전하게 고정하고 세로 배열 */
+      .bottom-bar {
+        bottom: 30px; left: 30px; right: 30px;
+        flex-direction: column; 
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .main-title { font-size: 9.5vw; }
+      .subtitle::before { width: 80px; }
+      .info-set { text-align: left; }
+
+      /* 오브제 배경으로 흐릿하게 처리 */
+      .metal-ui-container {
+        top: 35%; right: 50%; transform: translate(50%, -50%);
+        width: 280px; height: 280px; opacity: 0.25; pointer-events: none;
+      }
+
+      .pos-far-left, .pos-bottom { display: none; } 
+      
+      .drawer { width: 100%; left: -100%; padding: 100px 30px 50px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- 밝은 도면 감성의 그리드 -->
   <div class="grid-bg"></div>
 
-  <!-- HUD 데이터 텍스트 (칼각 정렬) -->
   <div class="hud-text hud-top-center">[ SYSTEM : ONLINE ]</div>
   <div class="hud-text hud-top-right">
     COORD: 37.5665° N / 126.9780° E<br>
     WIND: 4.20 m/s DIR 280.0°
   </div>
-  <div class="hud-text hud-bottom-right">
-    [ MULTIDISCIPLINARY LOGS ]<br>
-    VER_1.0.4 // 2026<br>
-    <div class="hud-highlight">DATA LOADED: 100%</div>
-  </div>
-
+  
   <button class="menu-btn" onclick="toggleDrawer()">>></button>
 
   <nav class="drawer" id="drawer">
     <ul class="drawer-menu">
-      <li><a href="#">01_MOTION</a></li>
-      <li><a href="#">02_ARTWORK</a></li>
-    </ul>
+      <li>
+        <details>
+          <summary>01_MOTION</summary>
+          <ul class="sub-menu">
+            <li><a href="helltrain.html">↳ 극락</a></li>
+         <li><a href="cozy.html">↳ COZY</a></li>
+     <li><a href="stay.html">↳ STAY</a></li>
+        </ul>
+      </details>
+  </li>
+  <li><a href="artwork.html">02_ARTWORK</a></li>
+</ul>
   </nav>
   <div class="overlay" id="overlay" onclick="toggleDrawer()"></div>
 
-  <!-- 미니멀 링 & 스캐너 포인트 -->
-  <div class="metal-ui-container">
-    <div class="metal-ring"></div>
-    <div class="scanner-flare"></div>
+  <div class="sparkle-wrapper pos-far-left">
+    <div class="sparkle-inner sparkle-silver" style="width: 20px; height: 38px;"></div>
+  </div>
+  
+  <div class="sparkle-wrapper pos-bottom">
+    <div class="sparkle-inner sparkle-black" style="width: 14px; height: 26px;"></div>
   </div>
 
-  <!-- 두 줄로 깔끔하게 정리된 다크 메탈릭 타이틀 -->
-  <div class="title-area">
-    <h1 class="main-title">
-      WELCOME,<br>
-      YU'S WORKSPACE
-    </h1>
-    <div class="subtitle">VISUAL WORKS & ARCHIVE</div>
+  <div class="metal-ui-container">
+    <div class="metal-ring"></div>
+    <div class="sparkle-wrapper pos-ring">
+      <div class="sparkle-inner sparkle-black"></div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="title-set">
+      <h1 class="main-title">
+        WELCOME,<br>
+        YU'S WORKSPACE
+      </h1>
+      <div class="subtitle">VISUAL WORKS & ARCHIVE</div>
+    </div>
+    
+    <div class="info-set">
+      [ MULTIDISCIPLINARY LOGS ]<br>
+      VER_1.0.4 // 2026<br>
+      DATA LOADED: 100%
+    </div>
   </div>
 
   <script>

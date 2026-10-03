@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT: 극락행 지옥열차</title>
+    <style>
+        /* 폰트 경로 */
+        @font-face {
+            font-family: 'YeongnamGusang';
+            src: url('train/fonts/YEONGNAMNEWS.woff') format('woff');
+            font-display: swap; 
+        }
+        @font-face {
+            font-family: 'PretendardReg';
+            src: url('train/fonts/PretendardRegular.woff') format('woff');
+            font-display: swap; 
+        }
+        @font-face {
+            font-family: 'SandollNano';
+            src: url('train/fonts/NotoSansKRBold.woff') format('woff');
+            font-display: swap; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html { 
+            scroll-behavior: smooth; 
+            scroll-snap-type: y proximity; 
+            overflow-y: scroll;
+        }
+        
+        body { 
+            font-family: 'PretendardReg', sans-serif; 
+            background-color: #050505; 
+            color: #d0d0d0; 
+            line-height: 1.6;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        section { 
+            scroll-snap-align: start; 
+            min-height: 100vh; 
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .desc-text { font-size: clamp(0.85rem, 1vw, 1rem); color: #999; word-break: keep-all; line-height: 1.6; letter-spacing: -0.3px; margin-bottom: 10px;}
+        .sys-text { font-family: monospace; font-size: clamp(0.7rem, 0.8vw, 0.8rem); color: #777; letter-spacing: 1px; text-transform: uppercase; }
+        .accent-white { color: #fff; font-weight: bold; }
+        
+        .section-header { width: 100%; max-width: 1400px; font-family: monospace; font-size: clamp(1.4rem, 2vw, 1.8rem); color: #fff; margin-bottom: clamp(20px, 3vh, 30px); display: flex; align-items: center; gap: 15px; letter-spacing: 1px; }
+        .section-header::before { content: ''; display: block; width: 40px; height: 1px; background: #fff; }
+
+        .top-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            display: flex; align-items: center; padding: 0 clamp(20px, 4vw, 40px);
+            background: rgba(5,5,5,0.8); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05); z-index: 100;
+        }
+        .back-btn { color: #888; text-decoration: none; font-size: 0.9rem; transition: color 0.3s; display: flex; align-items: center; gap: 10px; font-family: monospace; letter-spacing: 1px;}
+        .back-btn:hover { color: #fff; }
+
+        .top-btn {
+            position: fixed; bottom: clamp(20px, 4vh, 40px); right: clamp(20px, 4vw, 40px);
+            width: clamp(45px, 5vw, 55px); height: clamp(45px, 5vw, 55px);
+            background: #0a0a0a; border: 2px solid #333; border-radius: 50%;
+            cursor: pointer; display: flex; justify-content: center; align-items: center;
+            z-index: 999; transition: all 0.4s ease;
+            opacity: 0; visibility: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .top-btn::before { content: 'TOP'; position: absolute; width: 70%; height: 70%; background: radial-gradient(circle, #4a0000 20%, #110000 80%); border-radius: 50%; border: 1px solid #000; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: clamp(0.6rem, 0.8vw, 0.75rem); color: #ff3333; font-weight: bold; box-shadow: inset 0 0 8px rgba(255,0,0,0.4); transition: all 0.4s ease; }
+        .top-btn.show { opacity: 1; visibility: visible; }
+        .top-btn:hover::before { background: radial-gradient(circle, #cc0000 10%, #4a0000 90%); box-shadow: inset 0 0 15px #ffaaaa, 0 0 20px rgba(255,0,0,0.8); color: #fff; text-shadow: 0 0 5px #fff; }
+
+        /* 1. OVERVIEW & CONCEPT */
+        .hero-section {
+            align-items: center; justify-content: flex-start; 
+            border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding: 120px clamp(20px, 4vw, 40px) 60px; 
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        /* 💡 뷰파인더 가로 길이를 줄이고 세로를 키워 균형을 잡음 & 하단 여백 대폭 추가 */
+        .viewfinder-container {
+            position: relative; width: 100%; 
+            max-width: 1000px; 
+            height: clamp(350px, 50vh, 550px); 
+            margin-bottom: clamp(80px, 12vh, 150px); 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .viewfinder-corners { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        .viewfinder-corners::before, .viewfinder-corners::after { content: ''; position: absolute; width: clamp(30px, 4vw, 60px); height: clamp(30px, 4vw, 60px); border: 2px solid rgba(255, 255, 255, 0.4); }
+        .viewfinder-corners::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+        .viewfinder-corners::after { top: 0; right: 0; border-left: none; border-bottom: none; }
+        
+        .viewfinder-corners-bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: clamp(30px, 4vw, 60px); pointer-events: none; }
+        .viewfinder-corners-bottom::before, .viewfinder-corners-bottom::after { content: ''; position: absolute; width: clamp(30px, 4vw, 60px); height: clamp(30px, 4vw, 60px); border: 2px solid rgba(255, 255, 255, 0.4); }
+        .viewfinder-corners-bottom::before { bottom: 0; left: 0; border-right: none; border-top: none; }
+        .viewfinder-corners-bottom::after { bottom: 0; right: 0; border-left: none; border-top: none; }
+
+        .cam-ui-top { position: absolute; top: clamp(15px, 3vh, 30px); left: clamp(25px, 4vw, 50px); right: clamp(25px, 4vw, 50px); display: flex; justify-content: space-between; pointer-events: none; }
+        .cam-ui-bottom { position: absolute; bottom: clamp(15px, 3vh, 30px); left: clamp(25px, 4vw, 50px); right: clamp(25px, 4vw, 50px); display: flex; justify-content: space-between; pointer-events: none; }
+        .rec-indicator { display: flex; align-items: center; gap: 8px; color: #ff3333; font-weight: bold; font-family: monospace;}
+        .rec-dot { width: clamp(8px, 1vw, 12px); height: clamp(8px, 1vw, 12px); background-color: #ff3333; border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .glitch-mini { position: relative; display: inline-block; color: #ff3333; font-weight: bold; }
+        .glitch-mini::before, .glitch-mini::after { content: attr(data-text); position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: transparent; pointer-events: none; }
+        .glitch-mini::before { left: 1px; text-shadow: -1px 0 rgba(0,255,255,0.5); clip-path: inset(10% 0 80% 0); animation: glitch-mini-anim-1 2.5s infinite linear alternate-reverse; }
+        .glitch-mini::after { left: -1px; text-shadow: 1px 0 rgba(255,0,255,0.5); clip-path: inset(80% 0 10% 0); animation: glitch-mini-anim-2 3s infinite linear alternate-reverse; }
+        @keyframes glitch-mini-anim-1 { 0% { clip-path: inset(10% 0 80% 0); } 50% { clip-path: inset(50% 0 40% 0); } 100% { clip-path: inset(80% 0 10% 0); } }
+        @keyframes glitch-mini-anim-2 { 0% { clip-path: inset(80% 0 10% 0); } 50% { clip-path: inset(20% 0 60% 0); } 100% { clip-path: inset(10% 0 80% 0); } }
+
+        .title-wrap { text-align: center; z-index: 2; width: 100%; transform: translateY(-5px); }
+        .glitch-text { position: relative; font-family: 'YeongnamGusang', serif; font-size: clamp(3rem, 8vw, 7.5rem); color: #fff; margin-bottom: 5px; letter-spacing: 5px; display: inline-block; }
+        .glitch-text::before, .glitch-text::after { content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; mix-blend-mode: screen; }
+        .glitch-text::before { color: #ff0055; animation: rgb-split-red 2s infinite steps(1, end); }
+        .glitch-text::after { color: #00ffff; animation: rgb-split-cyan 2s infinite steps(1, end); }
+        @keyframes rgb-split-red { 0% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 5% { transform: translate(-6px, -2px); clip-path: inset(10% 0 40% 0); } 10% { transform: translate(8px, 3px); clip-path: inset(60% 0 5% 0); } 15% { transform: translate(-2px, 0); clip-path: inset(0 0 0 0); } 45% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 50% { transform: translate(-12px, 4px); clip-path: inset(35% 0 20% 0); } 52% { transform: translate(10px, -5px); clip-path: inset(5% 0 70% 0); } 54% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 80% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 83% { transform: translate(-7px, 2px); clip-path: inset(80% 0 2% 0); } 86% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } }
+        @keyframes rgb-split-cyan { 0% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 5% { transform: translate(6px, 2px); clip-path: inset(25% 0 35% 0); } 10% { transform: translate(-8px, -3px); clip-path: inset(5% 0 75% 0); } 15% { transform: translate(2px, 0); clip-path: inset(0 0 0 0); } 45% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 50% { transform: translate(12px, -4px); clip-path: inset(15% 0 60% 0); } 52% { transform: translate(-10px, 5px); clip-path: inset(50% 0 10% 0); } 54% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 80% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } 83% { transform: translate(7px, -2px); clip-path: inset(40% 0 30% 0); } 86% { transform: translate(0, 0); clip-path: inset(0 0 0 0); } }
+
+        .sub-title { font-family: 'PretendardReg', sans-serif; font-size: clamp(1rem, 2vw, 1.4rem); color: #aaa; margin-bottom: clamp(5px, 1vh, 15px); font-weight: 300; letter-spacing: 2px;}
+        .logline { font-size: clamp(0.9rem, 1.5vw, 1.1rem); color: #888; font-style: italic; background: rgba(255,255,255,0.05); padding: 8px clamp(12px, 2vw, 24px); display: inline-block; border-left: 3px solid #fff; letter-spacing: -0.5px;}
+
+        .overview-grid { display: grid; grid-template-columns: 2fr 1fr; gap: clamp(20px, 4vw, 40px); max-width: 1200px; width: 100%; z-index: 2; align-items: stretch; }
+        .concept-box { display: flex; flex-direction: column; height: 100%; justify-content: space-between; }
+        .concept-box h3 { font-size: clamp(0.85rem, 1vw, 0.95rem); color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 6px; letter-spacing: 1px; }
+        .keywords { margin-top: auto; font-family: monospace; color: #666; font-size: clamp(0.75rem, 1vw, 0.85rem); letter-spacing: 1px; padding-bottom: 6px; }
+
+        .info-box { display: flex; flex-direction: column; height: 100%; justify-content: flex-start; }
+        .info-box h3 { font-size: clamp(0.85rem, 1vw, 0.95rem); color: #aaa; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 6px; letter-spacing: 1px; }
+        .info-list { list-style: none; margin-top: 0; }
+        .info-list li { font-size: clamp(0.85rem, 1vw, 0.95rem); margin-bottom: 10px; display: flex; justify-content: space-between; border-bottom: 1px dashed #222; padding-bottom: 6px; }
+        .info-list li:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0;}
+        .info-list li span:first-child { color: #666; font-family: monospace; letter-spacing: 1px;}
+
+        /* 2. KEY COLOR & TYPOGRAPHY */
+        .system-section { padding: 60px clamp(20px, 4vw, 40px); border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; }
+        .system-content { width: 100%; max-width: 1400px; }
+        .color-palette { display: flex; gap: clamp(10px, 2vw, 20px); flex-wrap: wrap; margin-bottom: clamp(30px, 5vh, 50px);}
+        .color-chip { flex: 1; min-width: 200px; padding: clamp(15px, 2vw, 20px); border: 1px solid #222; background: #0a0a0a; display: flex; flex-direction: column; }
+        .color-box { width: 100%; height: clamp(50px, 6vh, 80px); margin-bottom: 15px; border: 1px solid #333;}
+        .color-chip h4 { font-size: clamp(0.9rem, 1.2vw, 1.1rem); color: #fff; margin-bottom: 5px; font-family: monospace; letter-spacing: 1px;}
+        .hex-code { font-family: monospace; color: #888; font-size: clamp(0.7rem, 1vw, 0.8rem); margin-bottom: 10px; display: block; }
+
+        .typo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: clamp(15px, 3vw, 30px); }
+        .typo-card { padding: clamp(15px, 2vw, 25px); background: #0a0a0a; border: 1px solid #222; display: flex; flex-direction: column; }
+        .typo-sample-wrapper { height: clamp(50px, 7vh, 80px); display: flex; align-items: flex-end; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .typo-sample-1 { font-family: 'YeongnamGusang', serif; font-size: clamp(2.2rem, 3.5vw, 3rem); color: #fff; line-height: 1; }
+        .typo-sample-2 { font-family: 'SandollNano', sans-serif; font-size: clamp(1.3rem, 2vw, 1.8rem); color: #fff; line-height: 1; }
+        .typo-card h4 { font-size: clamp(0.9rem, 1vw, 1rem); color: #fff; margin-bottom: 8px; font-weight: bold; letter-spacing: 0.5px;}
+
+        /* 3. ASSET DESIGN */
+        .object-section { padding: 60px clamp(20px, 4vw, 40px); border-bottom: 1px solid rgba(255,255,255,0.1); background: #030303; align-items: center;}
+        .object-content { width: 100%; max-width: 1400px; display: flex; flex-direction: column; gap: 15px; }
+        .main-display { width: 100%; height: clamp(250px, 40vh, 450px); background: #000; border: 1px solid #222; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; padding: 15px; }
+        .main-display img.single-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        
+        .seat-grid { display: none; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; height: 100%; align-items: center; }
+        .seat-grid img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        
+        /* 💡 미상의 손 4개 일렬 배치 처리 */
+        .hand-grid { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; height: 100%; align-items: center; justify-items: center;}
+        .hand-grid img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        
+        .obj-info-box { padding: 15px 0 5px; border-bottom: 1px solid #222; margin-bottom: 10px;}
+        .obj-info-box h3 { font-size: clamp(1.1rem, 1.5vw, 1.4rem); color: #fff; margin-bottom: 8px; font-weight: 600; letter-spacing: 0.5px;}
+
+        .thumbnail-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .thumbnail-row::-webkit-scrollbar { display: none; }
+        .thumb-wrapper { display: flex; flex-direction: column; gap: 5px; width: clamp(100px, 12vw, 140px); flex-shrink: 0; cursor: pointer; }
+        .thumb { width: 100%; height: clamp(60px, 8vh, 80px); background: #111; border: 1px solid #333; overflow: hidden; transition: all 0.3s ease; }
+        .thumb img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: 0.3s; }
+        .thumb-label { font-size: clamp(0.7rem, 0.9vw, 0.8rem); color: #777; text-align: center; font-family: monospace; letter-spacing: 0.5px; transition: 0.3s; }
+        .thumb-wrapper:hover .thumb img { opacity: 0.8; }
+        .thumb-wrapper:hover .thumb { border-color: #777; }
+        .thumb-wrapper.active .thumb { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
+        .thumb-wrapper.active .thumb img { opacity: 1; }
+        .thumb-wrapper.active .thumb-label { color: #fff; font-weight: bold; }
+
+        /* 4. STORYBOARD TO STYLEFRAME */
+        .scene-section { padding: 60px clamp(20px, 4vw, 40px); border-bottom: 1px solid rgba(255,255,255,0.1); align-items: center; justify-content: flex-start;}
+        .scene-content { width: 100%; max-width: 1400px; display: flex; flex-direction: column; gap: 40px; margin-top: 40px;}
+        
+        /* 💡 타이틀 명칭 통일 (STORYBOARD / STYLEFRAME) */
+        .sub-header { font-family: monospace; font-size: clamp(1.1rem, 1.5vw, 1.3rem); color: #aaa; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
+        .horizontal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .grid-item { display: flex; flex-direction: column; gap: 10px; }
+        .media-box { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid #222; overflow: hidden; position: relative; }
+        .media-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .media-box video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .info-block { padding-top: 10px; border-top: 1px solid #1a1a1a;}
+        .info-block h4 { font-size: clamp(0.9rem, 1vw, 1rem); color: #fff; margin-bottom: 5px; display: flex; justify-content: space-between;}
+        .info-block .desc-text { font-size: clamp(0.75rem, 0.9vw, 0.85rem); margin-bottom: 0; line-height: 1.4;}
+
+        /* 5. FULL FILM */
+        .final-section { padding: 60px clamp(20px, 4vw, 40px); align-items: flex-start; justify-content: flex-start;}
+        .final-content-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 1000px; margin: 0 auto; flex-grow: 1; }
+        .final-title { font-family: 'YeongnamGusang', serif; font-size: clamp(2.5rem, 5vw, 4rem); color: #fff; letter-spacing: 5px; text-shadow: 0 0 20px rgba(255,255,255,0.2); margin-bottom: 5px; }
+        .video-container { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border: 1px solid #333; box-shadow: 0 10px 40px rgba(0,0,0,0.9); margin-top: clamp(15px, 3vh, 30px); }
+        .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        .epilogue-trigger {
+            margin-top: 40px; font-family: monospace; font-size: 1rem; color: #ff3333;
+            letter-spacing: 2px; cursor: pointer;
+            padding: 10px 20px; border: 1px dashed #ff3333; background: rgba(255,0,0,0.05);
+            animation: pulseWarning 2s infinite; transition: all 0.3s;
+        }
+        .epilogue-trigger:hover { background: #ff3333; color: #000; text-shadow: none; box-shadow: 0 0 15px rgba(255,0,0,0.5); }
+        @keyframes pulseWarning { 0%, 100% { opacity: 1; text-shadow: 0 0 5px rgba(255,0,0,0.8); } 50% { opacity: 0.5; text-shadow: none; } }
+
+        /* 🔥 6. 에필로그 섹션 (기차 연출 및 텍스트 글리치 전면 개편) */
+        .epilogue-section {
+            position: relative; width: 100%; height: 100vh;
+            background: #020202; border-top: 1px dashed #222;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+        
+        .train-system {
+            display: flex; align-items: flex-end;
+            transform: translateX(100vw);
+            z-index: 10; padding-bottom: 15px; 
+            scale: clamp(0.5, 0.8vw, 0.8);
+            transform-origin: bottom center;
+        }
+
+        .loco { width: 160px; height: 75px; background: #e0e0e0; border: 2px solid #333; border-radius: 60px 0 0 0; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.8); overflow: hidden;}
+        .loco::before, .car-normal::before, .car-door::before { content:''; position:absolute; top: 35px; left:0; width:100%; height: 15px; background: #111; z-index: 0; }
+        .loco-window { width: 45px; height: 22px; background: #111; position: absolute; right: 20px; top: 12px; transform: skewX(-25deg); border-radius: 4px; }
+        .loco-light { width: 10px; height: 15px; background: #fff; box-shadow: -15px 0 20px rgba(255,255,255,0.8); position: absolute; left: 2px; bottom: 10px; border-radius: 5px; z-index: 2;}
+
+        .car-normal { width: 150px; height: 75px; background: #e0e0e0; border: 2px solid #333; position: relative; display: flex; justify-content: space-evenly; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.8); overflow: hidden;}
+        .car-window { width: 35px; height: 20px; background: #111; border-radius: 3px; z-index: 1;}
+
+        .car-door { width: 150px; height: 75px; background: #e0e0e0; border: 2px solid #333; position: relative; display: flex; justify-content: center; align-items: center; box-shadow: 0 10px 20px rgba(0,0,0,0.8); overflow: hidden;}
+        .css-door-frame { width: 45px; height: 60px; background: #111; position: relative; overflow: hidden; border: 1px solid #444; display: flex; z-index: 1;}
+        .css-door { width: 50%; height: 100%; background: #999; border: 1px solid #666; }
+        .css-door-left { border-right: 1px solid #333; }
+        .css-door-right { border-left: 1px solid #333; }
+
+        .connector { width: 15px; height: 12px; background: #333; margin-bottom: 18px; }
+        .wheel-container { position: absolute; bottom: -12px; width: 100%; display: flex; justify-content: space-around; padding: 0 15px; z-index: 2;}
+        .wheel { width: 24px; height: 24px; border-radius: 50%; background: #222; border: 3px dashed #888; }
+
+        .drop-text { position: absolute; bottom: clamp(20%, 30vh, 35%); left: 50%; transform: translate(-50%, 0); text-align: center; width: 100%; z-index: 1; }
+        
+        /* 텍스트 스타일: 시스템 폰트(SandollNano)로 100% 통일 */
+        .msg-line1 { font-family: 'SandollNano', sans-serif; color: #888; font-size: clamp(1rem, 2vw, 1.2rem); margin-bottom: 15px; letter-spacing: 1px; opacity: 0; }
+        .msg-line2 { font-family: 'SandollNano', sans-serif; color: #aaa; font-size: clamp(1.2rem, 3vw, 1.6rem); letter-spacing: 2px; display: flex; align-items: center; justify-content: center; opacity: 0; }
+        
+        .flicker-wrapper { position: relative; width: 150px; text-align: left; margin-left: 10px; height: 40px; display: flex; align-items: center;}
+        
+        .word-fake { position: absolute; left: 0; color: #aaa; opacity: 0; white-space: nowrap; }
+        
+        /* 🔥 LED 전광판 스타일의 "없습니다" */
+        .word-real { 
+            position: absolute; left: 0; opacity: 0; white-space: nowrap;
+            font-family: 'SandollNano', sans-serif; 
+            color: #ff3333; font-weight: bold;
+            text-shadow: 2px 2px 0px #330000, 0 0 10px #ff0000, 0 0 20px #ff0000;
+            letter-spacing: 2px;
+        }
+
+        .rail-line { position: absolute; bottom: clamp(35%, 45vh, 50%); left: 0; width: 100%; height: 2px; background: #222; z-index: 5; }
+
+        /* 💡 10초 타임라인 애니메이션 적용 */
+        .epilogue-section.is-visible .train-system { animation: trainSequence 10s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .epilogue-section.is-visible .wheel { animation: wheelSequence 10s cubic-bezier(0.25, 1, 0.5, 1) forwards; } 
+        .epilogue-section.is-visible .msg-line1 { animation: fadeInLine1 10s forwards; }
+        .epilogue-section.is-visible .msg-line2 { animation: fadeInLine2 10s forwards; }
+        .epilogue-section.is-visible .css-door-left { animation: doorSequenceLeft 10s forwards; }
+        .epilogue-section.is-visible .css-door-right { animation: doorSequenceRight 10s forwards; }
+        .epilogue-section.is-visible .word-fake { animation: fakeTextGlitch 10s forwards; }
+        .epilogue-section.is-visible .word-real { animation: realTextLed 10s forwards; }
+
+        /* 기차 들어오고 -> 멈춤 -> 화면 왼쪽으로 다시 나감 */
+        @keyframes trainSequence { 0% { transform: translateX(100vw); } 20%, 85% { transform: translateX(0); } 100% { transform: translateX(-150vw); } }
+        @keyframes wheelSequence { 0% { transform: rotate(0deg); } 20%, 85% { transform: rotate(-720deg); } 100% { transform: rotate(-1440deg); } }
+        @keyframes doorSequenceLeft { 0%, 30% { transform: translateX(0); } 35%, 80% { transform: translateX(-100%); } 85%, 100% { transform: translateX(0); } }
+        @keyframes doorSequenceRight { 0%, 30% { transform: translateX(0); } 35%, 80% { transform: translateX(100%); } 85%, 100% { transform: translateX(0); } }
+        
+        /* 텍스트 노출 타임라인 */
+        @keyframes fadeInLine1 { 0%, 34% { opacity: 0; } 35%, 100% { opacity: 1; } }
+        @keyframes fadeInLine2 { 0%, 44% { opacity: 0; } 45%, 100% { opacity: 1; } }
+        
+        /* 🔥 "이쪽입니다"가 조용히 나왔다가 오류로 산산조각 나는 효과 */
+        @keyframes fakeTextGlitch { 
+            0%, 44% { opacity: 0; }
+            45%, 64% { opacity: 1; clip-path: inset(0 0 0 0); transform: none; filter: none; }
+            65% { opacity: 1; clip-path: inset(20% 0 30% 0); transform: translateX(-5px); filter: grayscale(1); }
+            66% { opacity: 1; clip-path: inset(60% 0 10% 0); transform: translateX(5px); filter: invert(1); }
+            67% { opacity: 1; clip-path: inset(10% 0 50% 0); transform: scale(1.1); filter: blur(2px) contrast(300%); }
+            68%, 100% { opacity: 0; display: none;} 
+        }
+        
+        /* 🔥 "없습니다" LED 전광판 점등 효과 */
+        @keyframes realTextLed { 
+            0%, 67% { opacity: 0; } 
+            68% { opacity: 1; } 
+            69% { opacity: 0.3; } 
+            70% { opacity: 1; } 
+            71% { opacity: 0.5; } 
+            72%, 100% { opacity: 1; } 
+        }
+
+        @media (max-width: 1024px) {
+            .horizontal-grid { grid-template-columns: repeat(2, 1fr); gap: 20px;}
+        }
+
+        @media (max-width: 768px) {
+            html { scroll-snap-type: y proximity; } 
+            .overview-grid, .typo-grid, .horizontal-grid { grid-template-columns: 1fr; gap: 20px; }
+            .seat-grid { grid-template-columns: 1fr; } 
+            section { height: auto; min-height: 100vh; padding-top: 80px; padding-bottom: 20px;}
+            .train-system { scale: clamp(0.3, 0.5vw, 0.5); }
+            .flicker-wrapper { width: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <a href="index.html" class="back-btn">
+            <span>◄</span> RETURN TO ARCHIVE
+        </a>
+    </nav>
+
+    <button class="top-btn" id="topBtn" onclick="scrollToTop()" title="Go to top"></button>
+
+    <section class="hero-section">
+        
+        <div class="viewfinder-container">
+            <div class="viewfinder-corners"></div>
+            <div class="viewfinder-corners-bottom"></div>
+
+            <div class="cam-ui-top">
+                <div class="rec-indicator"><div class="rec-dot"></div> REC</div>
+                <div class="sys-text"><span class="glitch-mini" data-text="BATT: 100%">BATT: 100%</span></div>
+            </div>
+            
+            <div class="title-wrap">
+                <h1 class="glitch-text" data-text="극락">극락</h1>
+                <div class="sub-title">극락행 지옥열차</div>
+                <p class="logline">"평화로운 여행길에서 만난 미지의 세계"</p>
+            </div>
+
+            <div class="cam-ui-bottom">
+                <div class="sys-text" style="color:#555;">RAW</div>
+                <div class="sys-text" style="color:#555;">HD 4K 8K</div>
+            </div>
+        </div>
+
+        <div class="overview-grid">
+            <div class="concept-box">
+                <h3>// OVERVIEW & CONCEPT</h3>
+                <p class="desc-text">공포 웹소설의 흥미로운 에피소드에서 영감을 얻은 모션 그래픽 작업입니다. 일상적이고 여유로운 여행길이 순식간에 기괴한 공간으로 반전되는 순간을 시각화했습니다. 자극적이고 고어한 묘사 대신 고전 장르 특유의 분위기를 차용하여, 적당한 긴장감 속에서 누구나 흥미롭게 즐길 수 있는 공포감을 선사하고자 했습니다.</p>
+                <div class="keywords">#모션그래픽 #미스터리 #클래식호러 #기차여행</div>
+            </div>
+            
+            <div class="info-box">
+                <h3>// PROJECT_INFO</h3>
+                <ul class="info-list">
+                    <li><span>ROLE</span> <span>기획 100%, 모션 100%</span></li>
+                    <li><span>TIMELINE</span> <span>2주</span></li>
+                    <li><span>TOOLS</span> <span>After Effects, Illustrator</span></li>
+                    <li><span>STATUS</span> <span class="glitch-mini" data-text="COMPLETED">COMPLETED</span></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="system-section">
+        <div class="system-content">
+            <h2 class="section-header">KEY COLOR & TYPOGRAPHY</h2>
+            
+            <div class="color-palette">
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #7F5C48;"></div>
+                    <h4>Seat Brown</h4>
+                    <span class="hex-code">#7F5C48</span>
+                    <p class="desc-text">안락하고 느긋한 여행길의 기차 내부 좌석</p>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #010159;"></div>
+                    <h4>Abyss Blue</h4>
+                    <span class="hex-code">#010159</span>
+                    <p class="desc-text">공간을 압도하는 서늘한 공포감</p>
+                </div>
+                <div class="color-chip">
+                    <div class="color-box" style="background-color: #3C0703;"></div>
+                    <h4>Blood Dark</h4>
+                    <span class="hex-code">#3C0703</span>
+                    <p class="desc-text">어둠 속에서 튀어나오는 미지의 존재</p>
+                </div>
+            </div>
+
+            <div class="typo-grid">
+                <div class="typo-card">
+                    <div class="typo-sample-wrapper">
+                        <div class="typo-sample-1">극락</div>
+                    </div>
+                    <h4>영남뉴스 구상체</h4>
+                    <p class="desc-text">메인 타이틀 폰트. 예전 유행하던 괴담집 특유의 고전적이고 투박한 인상을 주어, 묘한 향수와 함께 서늘한 분위기를 전달하기 위해 사용했습니다.</p>
+                </div>
+                <div class="typo-card">
+                    <div class="typo-sample-wrapper">
+                        <div class="typo-sample-2">즐거운 여행 되시길 바랍니다.</div>
+                    </div>
+                    <h4>산돌 나노 코리아</h4>
+                    <p class="desc-text">시스템 안내 폰트. 일상적이고 친근한 폰트를 배치함으로써, 이후 벌어지는 기괴한 사건과 강렬한 시각적 대비를 이끌어냅니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="object-section">
+        <div class="object-content">
+            <h2 class="section-header">ASSET DESIGN</h2>
+            <div class="gallery-container">
+                <div class="main-display">
+                    <img id="mainImg" class="single-img" src="train/images/traindesign.png" alt="오브젝트 디자인">
+                    
+                    <div id="seatGrid" class="seat-grid">
+                        <img src="train/images/seat1.png" alt="seat1">
+                        <img src="train/images/seat2.png" alt="seat2">
+                        <img src="train/images/seat3.png" alt="seat3">
+                    </div>
+
+                    <div id="handGrid" class="hand-grid">
+                        <img src="train/images/hand1.png" alt="hand1">
+                        <img src="train/images/hand2.png" alt="hand2">
+                        <img src="train/images/hand3.png" alt="hand3">
+                        <img src="train/images/hand4.png" alt="hand4">
+                    </div>
+                </div>
+                
+                <div class="obj-info-box">
+                    <h3 id="objTitle">기차 내부 전경</h3>
+                    <p id="objDesc" class="desc-text">전체적인 톤앤매너를 보여주는 메인 뷰입니다. 편안한 브라운 톤의 우드 질감을 활용해 여유롭고 안락한 공간감을 조성했습니다.</p>
+                </div>
+
+                <div class="thumbnail-row">
+                    <div class="thumb-wrapper active" onclick="changeObj('normal', 'train/images/traindesign.png', '기차 내부 전경', '전체적인 톤앤매너를 보여주는 메인 뷰입니다. 편안한 브라운 톤의 우드 질감을 활용해 여유롭고 안락한 공간감을 조성했습니다.', this)">
+                        <div class="thumb"><img src="train/images/traindesign.png" alt="traindesign"></div>
+                        <div class="thumb-label">기차 내부</div>
+                    </div>
+                    
+                    <div class="thumb-wrapper" onclick="changeObj('seat', '', '기차 좌석 (Variations)', '관찰자가 고립된 공간에 있음을 암시하며, 일상적인 질감(#7F5C48)을 사용해 편안함을 주지만 사건 시작 후에는 낯선 공포의 배경이 됩니다.', this)">
+                        <div class="thumb"><img src="train/images/seat1.png" alt="seat"></div>
+                        <div class="thumb-label">기차 좌석</div>
+                    </div>
+
+                    <div class="thumb-wrapper" onclick="changeObj('normal', 'train/images/display.png', '전광판', '평범한 안내자 역할에서, 순간적인 시스템 오류(Glitch)와 함께 공포의 메신저로 변모하는 핵심 장치입니다.', this)">
+                        <div class="thumb"><img src="train/images/display.png" alt="display"></div>
+                        <div class="thumb-label">전광판</div>
+                    </div>
+                    <div class="thumb-wrapper" onclick="changeObj('normal', 'train/images/view.png', '뷰파인더 UI', '캠코더 렌즈를 통해 바라보는 듯한 UI를 적용하여, 누군가 지켜보는 듯한 올드한 감성과 현장감을 더했습니다.', this)">
+                        <div class="thumb"><img src="train/images/view.png" alt="view"></div>
+                        <div class="thumb-label">뷰파인더</div>
+                    </div>
+
+                    <div class="thumb-wrapper" onclick="changeObj('hand', '', '미상의 신체부위 (Variations)', '푸른 어둠 속에서 예고 없이 등장하는 붉은 손의 움직임 컷들입니다. 고어한 묘사를 피하면서도 본능적인 거부감을 자극합니다.', this)">
+                        <div class="thumb"><img src="train/images/hand1.png" alt="hand"></div>
+                        <div class="thumb-label">미상의 손</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="scene-section">
+        <div class="scene-content">
+            <h2 class="section-header">STORYBOARD TO STYLEFRAME</h2>
+            
+            <h3 class="sub-header">STORYBOARD</h3>
+            <div class="horizontal-grid">
+                <div class="grid-item">
+                    <div class="media-box"><img src="train/images/story1.png" alt="Story 1"></div>
+                    <div class="info-block"><h4>여유 (Relaxation) <span class="accent-white">S#01</span></h4></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><img src="train/images/story2.png" alt="Story 2"></div>
+                    <div class="info-block"><h4>전조 (Omen) <span class="accent-white">S#02</span></h4></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><img src="train/images/story3.png" alt="Story 3"></div>
+                    <div class="info-block"><h4>반전 (Distortion) <span class="accent-white">S#03</span></h4></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><img src="train/images/story4.png" alt="Story 4"></div>
+                    <div class="info-block"><h4>제물 (Sacrifice) <span class="accent-white">S#04</span></h4></div>
+                </div>
+            </div>
+
+            <h3 class="sub-header" style="margin-top: 20px;">STYLEFRAME</h3>
+            <div class="horizontal-grid">
+                <div class="grid-item">
+                    <div class="media-box"><video src="train/videos/train1.mp4" autoplay loop muted playsinline></video></div>
+                    <div class="info-block"><p class="desc-text">기차 창밖으로 시원한 바다와 산이 스쳐 지나가는 평화로운 여행길.</p></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><video src="train/videos/train2.mp4" autoplay loop muted playsinline></video></div>
+                    <div class="info-block"><p class="desc-text">목적지를 안내하던 전광판. 갑자기 글리치(Glitch) 효과와 함께 오류가 발생.</p></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><video src="train/videos/train3.mp4" autoplay loop muted playsinline></video></div>
+                    <div class="info-block"><p class="desc-text">빛이 꺼지며 터널로 진입. 공간 전체가 서늘한 푸른 색감으로 물들며 분위기 전환.</p></div>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box"><video src="train/videos/train4.mp4" autoplay loop muted playsinline></video></div>
+                    <div class="info-block"><p class="desc-text">문틈 사이로 뻗어 나오는 미지의 손. 긴장감이 최고조에 달하며 암전.</p></div>
+                </div>
+            </div>
+            
+        </div>
+    </section>
+
+    <section class="final-section">
+        <h2 class="section-header">FULL FILM</h2>
+        <div class="final-content-wrapper">
+            <div class="sys-text" style="margin-bottom: 10px; color: #aaa;">FINAL ANIMATION RECORD</div>
+            <h2 class="final-title">극락</h2>
+            
+            <div class="video-container">
+                <video controls playsinline src="train/videos/final.mp4"></video>
+            </div>
+            
+            <div class="epilogue-trigger" onclick="goToEpilogue()">
+                [ 1 UNREAD MESSAGE ] ▼
+            </div>
+        </div>
+    </section>
+
+    <section class="epilogue-section" id="epilogue">
+        
+        <div class="rail-line"></div>
+        
+        <div class="train-system">
+            <div class="loco">
+                <div class="loco-window"></div>
+                <div class="loco-light"></div>
+                <div class="wheel-container"><div class="wheel"></div><div class="wheel"></div></div>
+            </div>
+            <div class="connector"></div>
+            <div class="car-normal">
+                <div class="car-window"></div><div class="car-window"></div>
+                <div class="wheel-container"><div class="wheel"></div><div class="wheel"></div></div>
+            </div>
+            <div class="connector"></div>
+            <div class="car-door">
+                <div class="css-door-frame">
+                    <div class="css-door css-door-left"></div>
+                    <div class="css-door css-door-right"></div>
+                </div>
+                <div class="wheel-container"><div class="wheel"></div><div class="wheel"></div></div>
+            </div>
+            <div class="connector"></div>
+            <div class="car-normal">
+                <div class="car-window"></div><div class="car-window"></div>
+                <div class="wheel-container"><div class="wheel"></div><div class="wheel"></div></div>
+            </div>
+            <div class="connector"></div>
+            <div class="car-normal">
+                <div class="car-window"></div><div class="car-window"></div>
+                <div class="wheel-container"><div class="wheel"></div><div class="wheel"></div></div>
+            </div>
+        </div>
+        
+        <div class="drop-text">
+            <p class="msg-line1">함께 해주셔서 감사합니다.</p>
+            <p class="msg-line2">나가시는 문은 
+                <span class="flicker-wrapper">
+                    <span class="word-fake">이쪽입니다.</span>
+                    <span class="word-real">없습니다.</span>
+                </span>
+            </p>
+        </div>
+    </section>
+
+    <script>
+        function changeObj(type, imgSrc, title, desc, element) {
+            let singleImg = document.getElementById('mainImg');
+            let handGrid = document.getElementById('handGrid');
+            let seatGrid = document.getElementById('seatGrid');
+
+            singleImg.style.display = 'none';
+            handGrid.style.display = 'none';
+            seatGrid.style.display = 'none';
+
+            if (type === 'hand') {
+                handGrid.style.display = 'grid';
+            } else if (type === 'seat') {
+                seatGrid.style.display = 'grid';
+            } else {
+                singleImg.style.display = 'block';
+                singleImg.src = imgSrc;
+            }
+
+            document.getElementById('objTitle').innerText = title;
+            document.getElementById('objDesc').innerText = desc;
+            
+            let wrappers = document.querySelectorAll('.thumb-wrapper');
+            wrappers.forEach(w => w.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        const topBtn = document.getElementById("topBtn");
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                topBtn.classList.add("show");
+            } else {
+                topBtn.classList.remove("show");
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function goToEpilogue() {
+            document.getElementById('epilogue').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        let isLocked = false;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !isLocked) {
+                    entry.target.classList.add('is-visible');
+                    
+                    document.body.style.overflow = 'hidden';
+                    isLocked = true;
+                    
+                    setTimeout(() => {
+                        document.body.style.overflow = '';
+                    }, 10000);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        observer.observe(document.getElementById('epilogue'));
+    </script>
+</body>
+</html>
